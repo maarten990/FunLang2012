@@ -28,6 +28,17 @@ let date2str (day, month, year) =
     let s_month = List.nth months (month - 1) in
     s_month ^ " " ^ s_day ^ ", " ^ s_year
 
+(* Gives the digitsum of the given number.
+ * Type: int -> int
+ * *)
+let rec digitSum n =
+    if n < 10 then
+        n
+    else
+        let lastDigit = n mod 10 in
+        let rest = n / 10 in
+        lastDigit + digitSum rest
+
 (* Gives the digitroot of the given number.
  *
  * Type: int -> int
@@ -36,8 +47,7 @@ let rec digitRoot n =
     if n < 10 then
         n
     else
-        let digitSum = (n / 10) + (n mod 10) in
-        digitRoot digitSum
+        digitRoot (digitSum n)
 
 (* Returns the nth element of a list.
  *
@@ -45,6 +55,7 @@ let rec digitRoot n =
  *)
 
 let rec nth n l = match n, l with
+    | _, [] -> 0   (* should through an error here or something *)
     | 0, h::_ -> h
     | n, _::t -> nth (pred n) t
 
@@ -55,10 +66,11 @@ let rec nth n l = match n, l with
 let rec heads l = match l with
     | [] -> []
     | (h::_)::tail -> h :: heads tail
+    | []::tail -> 0 :: heads tail (* again, error or something *)
 
 (* Zips 2 lists together in tuples of elements.
  *
- * Type: a list -> b list -> a * b
+ * Type: a list -> b list -> a * b list
  *)
 let rec pairs xs ys = match xs, ys with
 | [], _ -> []
@@ -70,7 +82,7 @@ let rec sublistBegin l m =
     match l, m with
     | _, [] -> false
     | [], _ -> true
-    | (lh::lt), (mh::mt) -> if lh = mh then subListBegin lt mt else false
+    | (lh::lt), (mh::mt) -> if lh = mh then sublistBegin lt mt else false
 
 let rec isSublist l m = 
     match m with
