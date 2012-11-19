@@ -132,7 +132,7 @@ let rec segment d cs =
     let rec segment' cs d sub = match cs, d, sub with
         | [], _, sub -> [sub]
         | h::t, d, sub -> if h = d then sub::(segment' t d []) else 
-            segment' t d (h::sub)
+            segment' t d (sub @ [h])
     in (segment' cs d [])
 
 (* Tokenizes a list of "words" in the form of character lists, using a list of
@@ -152,4 +152,67 @@ let rec tokenize' cs ds =
 let tokenize (c, ds) = 
     let c_list = list_of_string c in
     let ds_list = list_of_string ds in
-    List.map string_of_list (tokenize' [c_list] ds_list)
+    List.map string_of_list (tokenize' [c_list] ds_list);;
+
+
+
+(***************************************************************************
+*                                Challenge                                *
+***************************************************************************)
+
+(* Returns the count of an element in a list *)
+let rec count elem xs =
+    match elem, xs with
+    | elem, [] -> 0
+    | elem, x::xs ->
+            if elem = x then
+                1 + count elem xs
+            else
+                count elem xs
+
+(* Checks if the first list is a permutation of the second list *)
+let checkPermute xs target =
+    let bools = List.map (fun a -> (count a xs) = (count a target)) xs in
+    List.for_all (fun a -> a) bools
+
+(* Given a list of lists, filter it such that no element of the list is a
+ * permutation of any other element *)
+let rec filterPermutes = function
+    | [] -> []
+    | x::xs -> 
+            if List.exists (fun a -> checkPermute x a) xs then
+                filterPermute xs
+            else
+                x::(filterPermute xs)
+        
+(* expands a node in the search tree *)
+let rec expand possibilities combination =
+    match possibilities, combination with
+    | [], _ -> []
+    | h::t, comb -> (h::comb) :: (expand t comb)
+
+(* performs a depth-first search to find all possible ways of attaining the goal
+ * given the possible coin values. 
+ * 'value', 'combination' and 'visited' assumed to be passed as 0, [] and [].
+ * (Sloppy, yes. But I really need to sleep right now! *)
+let rec depthFirst possibilities goal value combination visited =
+    if value = goal then
+        [combination]
+    else if value < goal then
+        let f ncomb = depthFirst possibilities goal (value + (List.hd
+            ncomb)) ncomb (combination::visited) in
+        filterPermutes (List.concat (List.map f (expand possibilities
+        combination)))
+    else
+        []
+
+(* Returns a tuple whose first element is the number of ways to get the value
+ * 'n' using the given coin denominations, and whose second element is a list
+ * containing said ways.
+ *
+ * Is incredibly slow when there's too many options. A depthfirst search might
+ * not be the best algorithm for this, but it's easy.
+ * *)
+let rec coinPermute coins n = 
+    let options = depthFirst coins n 0 [] [] in
+    (List.length options, options)
