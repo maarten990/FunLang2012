@@ -146,7 +146,8 @@ let rec tokenize' cs ds =
             let step = List.flatten (List.map (segment d) cs) in
             tokenize' step ds
 
-(* Tokenizes the string c on the delimiters given in the string ds
+(* Tokenizes the string c on the delimiters given in the string ds.
+ * Does not respect the order of the tokens.
  * Type: string * string -> string list
  * *)
 let tokenize (c, ds) = 
@@ -181,9 +182,9 @@ let rec filterPermutes = function
     | [] -> []
     | x::xs -> 
             if List.exists (fun a -> checkPermute x a) xs then
-                filterPermute xs
+                filterPermutes xs
             else
-                x::(filterPermute xs)
+                x::(filterPermutes xs)
         
 (* expands a node in the search tree *)
 let rec expand possibilities combination =
