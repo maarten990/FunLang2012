@@ -6,5 +6,6 @@ let rec quicksort = function
         quicksort smaller @ [x] @ quicksort largerEq
 
 (* Defining the trie datatype *)
-type ('a, 'b) trie =
-    | Node of 'a * 'b * (('a, 'b) trie) list
+type ('k, 'v) trie =
+    | Leaf
+    | Node of 'k * 'v * ('k, 'v) trie list
