@@ -7,4 +7,7 @@ let rec quicksort = function
 
 (* Defining the trie datatype *)
 type ('a, 'b) trie =
+    | Root of (('a, 'b) trie) list
+
+    (* A node contains a key, value, and list of children *)
     | Node of 'a * 'b * (('a, 'b) trie) list
