@@ -1,10 +1,9 @@
 
 (* Defining the trie datatype *)
 type ('a, 'b) trie =
-    | Root of ('a * ('a, 'b) trie) list
-
+    | Root of ('a * ('a, 'b ) trie) list
     (* A node contains a key, value, and list of children *)
-    | Node of 'a * 'b * ('a * ('a, 'b) trie) list
+    | Node of 'a * 'b * ('a * ('a, 'b ) trie) list
 
 
 let rec insert' nodes key value = 
