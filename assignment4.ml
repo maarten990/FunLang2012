@@ -15,15 +15,6 @@ let rec merge a b =
                 xh::(merge xt (yh::yt))
     | x, yh::yt -> yh::(merge x yt)
             
-
-let rec mergesort x = 
-    match x with
-    | []    -> []
-    | [x]   -> [x]
-    | l -> 
-            let s1, s2 = half_split l in
-            merge (mergesort s1) (mergesort s2)
-
 let rec half_split l = 
     let rec half_split' l s1 length =
         match l with
@@ -36,9 +27,21 @@ let rec half_split l =
     half_split' l [] length
 
 
+let rec mergesort x = 
+    match x with
+    | []    -> []
+    | [x]   -> [x]
+    | l -> let s1, s2 = half_split l in
+            merge (mergesort s1) (mergesort s2)
+
+
 (* Defining the trie datatype *)
 type ('a, 'b) trie =
     | Root of (('a, 'b) trie) list
 
     (* A node contains a key, value, and list of children *)
     | Node of 'a * 'b * (('a, 'b) trie) list
+
+let insert trie key value =
+    match trie with
+    | Root [] -> Root [Node (key, value, [])]
