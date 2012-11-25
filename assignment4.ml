@@ -37,11 +37,7 @@ let rec mergesort x =
 
 (* Defining the trie datatype *)
 type ('a, 'b) trie =
-    | Root of (('a, 'b) trie) list
+    | Root of ('a * ('a, 'b) trie) list
 
     (* A node contains a key, value, and list of children *)
-    | Node of 'a * 'b * (('a, 'b) trie) list
-
-let insert trie key value =
-    match trie with
-    | Root [] -> Root [Node (key, value, [])]
+    | Node of 'a * 'b * ('a * ('a, 'b) trie) list
