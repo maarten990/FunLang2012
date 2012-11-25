@@ -45,3 +45,26 @@ type ('a, 'b) trie =
 let insert trie key value =
     match trie with
     | Root [] -> Root [Node (key, value, [])]
+
+
+
+let rec remove' nodes key = 
+    match nodes with
+    | [] -> []
+    (* In case we have a list of nodes do pattern matching to find*)
+    | (h, _)::t when h = ((List.hd key), _) && (List.length key) > 1 ->
+              (remove h (List.tl key))::t
+    | h::t  when h = (List.hd key, _) ->
+              t
+    | h::t -> h::(remove t key)
+    
+(*Root( [Node('a', None, [] ; Node()]) *)
+(* Remove key from trie*)
+let rec remove trie key =
+    match trie with
+    (* In case trie is empty tree return trie*)
+    | Root [] -> trie
+    (* In case Trie is at root node go into recursion*)
+    | Root nodes -> Root([remove' nodes key])
+
+
