@@ -101,6 +101,50 @@ let insert root keys value =
 
 
 
+
+let rec remove' nodes key = 
+   match nodes with 
+   (*In case last element of key matches with head key of node return only the
+    * tail*)
+   | Node(key', _, [])::t when key' = (List.hd key) && (List.length key) <=
+       1 -> t
+   (* In case last element of key match with head but has children just return
+    * the whole node section with head value set to None*)
+   | Node(key', value, children)::t when key' = (List.hd key) && (List.length key) <=
+       1 -> Node(key', None, children)::t 
+   (* In case not last element of key matches go into recursion*)
+   | Node(key', value, children)::t when key' = (List.hd key) ->
+           Node(key', value, remove' children (List.tl key))::t
+   (*Head does not match, recurse with t*)
+   | h::t -> h::remove' t key
+
+(*Removes a key from a trie and returns this new trie. In case key not in trie
+ * returns same trie as input*)
+let remove trie key = 
+    match trie with 
+    | Root(nodes) -> Root(remove' nodes key)
+
+
+let rec removeAll' nodes key = 
+   match nodes with 
+   (*In case last element of key matches with head key of node return only the
+    * tail*)
+   | Node(key', _, _)::t when key' = (List.hd key) && (List.length key) <=
+       1 -> t
+   (* In case not last element of key matches go into recursion*)
+   | Node(key', value, children)::t when key' = (List.hd key) ->
+           Node(key', value, removeAll' children (List.tl key))::t
+   (*Head does not match, recurse with t*)
+   | h::t -> h::removeAll' t key
+
+(*Removes all nodes under the given key. If it does not resist it just returns
+ * the input Trie*)
+let removeAll trie key = 
+    match trie with 
+    | Root(nodes) -> Root(removeAll' nodes key)
+
+
+
 let rec lookup' nodes key = 
     print_char (List.hd key);
     match nodes with 
@@ -120,7 +164,6 @@ let rec lookup' nodes key =
 let lookup trie key = 
     match trie with
     | Root(nodes) -> lookup' nodes key
-
 
 
 
