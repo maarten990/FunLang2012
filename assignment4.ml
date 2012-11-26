@@ -35,38 +35,91 @@ let rec mergesort x =
             merge (mergesort s1) (mergesort s2)
 
 
-(* Defining the trie datatype *)
+(* The trie datatype *)
 type ('a, 'b) trie =
-    | Root of ('a * ('a, 'b) trie) list
+    | Root of ('a, 'b) trie list
 
     (* A node contains a key, value, and list of children *)
-    | Node of 'a * 'b * ('a * ('a, 'b) trie) list
-(*
-let insert trie key value =
-    match trie with
-    | Root [] -> Root [Node (key, value, [])]
-*)
+    | Node of 'a * 'b * (('a, 'b) trie) list
+
+
+(* Inserts a key (as list of elements) and value into a trie Node *)
+let rec insert_node node keys value =
+
+    (* Returns the keys of a list of nodes *)
+    let rec child_keys = function
+        | [] -> []
+        | Node(key, _, _) :: rest -> key::(child_keys rest)
+    in
+
+    match node, keys with
+    (* If there's one key and it matches the current node's key, just change its
+     * value *)
+    | Node (nodekey, nodeval, children), [key] when nodekey = key ->
+                Node (nodekey, Some value, children)
+
+    (* If there's one key and it doesn't match the node, return the node. *)
+    | Node (nodekey, nodeval, children), [key] ->
+                Node (nodekey, nodeval, children)
+
+    (* If there are multiple keys and the first one matches the current node:
+        * If the next key is already present, apply insert_node to every
+        * child node.
+        *
+        * If the next key isn't present, add a new node with that key and no
+        * value to the children, and apply insert_node to every child node.
+        * *)
+    | Node (nodekey, nodeval, children), key::nextkey::keys when nodekey = key ->
+            if not (List.mem nextkey (child_keys children)) then
+                let newchildren = Node (nextkey, None, []) :: children in
+                let f = fun x -> insert_node x (nextkey::keys) value in
+                Node (nodekey, nodeval, (List.map f newchildren))
+            else
+                let f = fun x -> insert_node x (nextkey::keys) value in
+                Node (nodekey, nodeval, (List.map f children))
+
+    (* If none of the previous cases are true, just return the node *)
+    | node, _ -> node
+
+(* Inserts a key (as list of elements) and value into a trie Root *)
+let insert root keys value =
+    let rec child_keys = function
+        | [] -> []
+        | Node(key, _, _) :: rest -> key::(child_keys rest)
+    in
+
+    match root, keys with
+    | Root children, key::keys ->
+            if not (List.mem key (child_keys children)) then
+                let newchildren = Node (key, None, []) :: children in
+                let f = fun x -> insert_node x (key::keys) value in
+                Root (List.map f newchildren)
+            else
+                let f = fun x -> insert_node x (key::keys) value in
+                Root (List.map f children)
 
 
 
-let rec remove' nodes key = 
-    match nodes with
-    | [] -> []
-    (* In case we have a list of nodes do pattern matching to find*)
-    | (h, Node(_, _, children))::t when h = List.hd key && (List.length key) > 1 ->
-              (remove' children (List.tl key))::t
-    (* Head is the thing to remove*)
-    | (h, Node(_, _, _))::t when h = (List.hd key) -> t
-    | h::t -> h::(remove' [] key)
+(* assignment 11 *)
+(* Types could be added to the operators
+ * (such as IntConst -> IntConst -> IntConst for the arithmetic operatators),
+ * but I'm not sure how useful that would be. *)
+type arithOp = Plus | Minus | Mult | Div | Mod
+type relOp = Eq | Neq | LessThan | LessEq | GreaterThan | GreaterEq
+type logicOp = And | Or
+type monOp = Neg | Not
+type const =
+    | BoolConst of bool
+    | IntConst of int
 
-(*Root( [Node('a', None, [] ; Node()]) *)
-(* Remove key from trie*)
-let rec remove trie key =
-    match trie with
-    (* In case trie is empty tree return trie*)
-    | Root([]) -> trie
-    (* In case Trie is at root node go into recursion*)
-    | Root(nodes) -> Root([remove' nodes key])
+type binOp =
+    | ArithOp of arithOp
+    | RelOp of relOp
+    | BinOp of binOp
 
-
-
+type expr =
+    | Expr of expr
+    | BinRel of expr * binOp * expr
+    | MonRel of monOp * expr
+    | Id
+    | Const of const
