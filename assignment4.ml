@@ -81,6 +81,7 @@ let rec insert_node node keys value =
     (* If none of the previous cases are true, just return the node *)
     | node, _ -> node
 
+
 (* Inserts a key (as list of elements) and value into a trie Root *)
 let insert root keys value =
     let rec child_keys = function
@@ -97,6 +98,21 @@ let insert root keys value =
             else
                 let f = fun x -> insert_node x (key::keys) value in
                 Root (List.map f children)
+
+
+
+let rec lookup' nodes key = 
+    match nodes with 
+    | [] -> None
+    | Node(key', value, children)::_ when ((List.length key) <= 1) && key' =
+       ( List.hd key ) -> value
+    | Node(key', value, children)::_ when key' = (List.hd key) -> lookup' children key
+    | _::t -> lookup' t key
+
+let lookup trie key = 
+    match trie with
+    | Root(nodes) -> lookup' nodes key
+
 
 
 
