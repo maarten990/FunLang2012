@@ -102,16 +102,25 @@ let insert root keys value =
 
 
 let rec lookup' nodes key = 
+    print_char (List.hd key);
     match nodes with 
+    (*In case no nodes the key does not exist*)
     | [] -> None
+    (*Last element of key is the same as key of head of the nodes; return
+     * value*)
     | Node(key', value, children)::_ when ((List.length key) <= 1) && key' =
        ( List.hd key ) -> value
-    | Node(key', value, children)::_ when key' = (List.hd key) -> lookup' children key
+    (*Look in the children of the head of the list*)
+    | Node(key', value, children)::_ when key' = (List.hd key) -> lookup'
+    children (List.tl key)
+    (*Recursion into tail*)
     | _::t -> lookup' t key
 
+(*Looks up a value given a key. Returns None if key none existent*)
 let lookup trie key = 
     match trie with
     | Root(nodes) -> lookup' nodes key
+
 
 
 
