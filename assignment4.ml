@@ -83,6 +83,7 @@ let rec insert_node node keys value =
 
 
 (* Inserts a key (as list of elements) and value into a trie Root *)
+(*Expects a Root*)
 let insert root keys value =
     let rec child_keys = function
         | [] -> []
@@ -120,6 +121,7 @@ let rec remove' nodes key =
 
 (*Removes a key from a trie and returns this new trie. In case key not in trie
  * returns same trie as input*)
+(*Expects a Root*)
 let remove trie key = 
     match trie with 
     | Root(nodes) -> Root(remove' nodes key)
@@ -139,6 +141,7 @@ let rec removeAll' nodes key =
 
 (*Removes all nodes under the given key. If it does not resist it just returns
  * the input Trie*)
+(*Expects a Root*)
 let removeAll trie key = 
     match trie with 
     | Root(nodes) -> Root(removeAll' nodes key)
@@ -161,6 +164,7 @@ let rec lookup' nodes key =
     | _::t -> lookup' t key
 
 (*Looks up a value given a key. Returns None if key none existent*)
+(*Expects a Root*)
 let lookup trie key = 
     match trie with
     | Root(nodes) -> lookup' nodes key
