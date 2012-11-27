@@ -118,6 +118,7 @@ let rec remove' nodes key =
            Node(key', value, remove' children (List.tl key))::t
    (*Head does not match, recurse with t*)
    | h::t -> h::remove' t key
+   | _ -> []
 
 (*Removes a key from a trie and returns this new trie. In case key not in trie
  * returns same trie as input*)
