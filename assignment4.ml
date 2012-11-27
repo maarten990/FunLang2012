@@ -1,3 +1,6 @@
+(* Assignment 4
+ * By Inge Becht #6093906
+ *   Maarten de Jonge #6286658*)
 (*Assignment 9*)
 let rec quicksort = function
     | [] -> []
