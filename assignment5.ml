@@ -54,3 +54,16 @@ let rec expr2string expr =
     | Let (var, exp1, exp2) ->
             "let " ^ var ^ " = " ^ (expr2string exp1) ^ " in "
             ^ (expr2string exp2)
+    | LetRec (var, exp1, exp2) ->
+            "let rec " ^ var ^ " = " ^ (expr2string exp1) ^ " in "
+            ^ (expr2string exp2)
+
+(* The set of free variables is the set of Vars intersected with the set of
+ * let-bindings.
+ * *)
+let freevars expr =
+    match expr with
+    (* Base cases *)
+    | Num x -> []
+    | Bool x -> []
+    | Var x -> [x]
