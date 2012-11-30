@@ -58,12 +58,34 @@ let rec expr2string expr =
             "let rec " ^ var ^ " = " ^ (expr2string exp1) ^ " in "
             ^ (expr2string exp2)
 
-(* The set of free variables is the set of Vars intersected with the set of
- * let-bindings.
+(* Substract xs from ys *)
+let list_substract xs ys =
+    match ys with
+    | [] -> []
+    | head::tail when List.mem head xs -> list_substract xs tail
+    | head::tail -> head :: (list_substract xs tail)
+
+(* The set of free variables is the set of let- and function-bindings subtracted
+ * from the set of variables.
  * *)
-let freevars expr =
+let rec freevars expr =
     match expr with
     (* Base cases *)
     | Num x -> []
     | Bool x -> []
     | Var x -> [x]
+
+    | MonopAp (_, exp) -> freevars exp
+    | BinopAp (_, exp1, exp2) -> (freevars exp1) @ (freevars exp2)
+
+    | Cond (if_exp, then_exp, else_exp) ->
+        (freevars if_exp) @ (freevars then_exp) @ (freevars else_exp)
+
+    | Fun (var, exp) -> list_substract [var] (freevars exp)
+    | FunAp (exp1, exp2) -> (freevars exp1) @ (freevars exp2)
+
+    | Let (var, exp1, exp2) ->
+            list_substract [var] ( (freevars exp1) @ (freevars exp2) )
+
+    | LetRec (var, exp1, exp2) ->
+            list_substract [var] ( (freevars exp1) @ (freevars exp2) )
