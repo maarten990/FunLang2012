@@ -58,17 +58,19 @@ let rec expr2string expr =
             "let rec " ^ var ^ " = " ^ (expr2string exp1) ^ " in "
             ^ (expr2string exp2)
 
-(* Substract xs from ys *)
-let list_substract xs ys =
-    match ys with
-    | [] -> []
-    | head::tail when List.mem head xs -> list_substract xs tail
-    | head::tail -> head :: (list_substract xs tail)
-
 (* The set of free variables is the set of let- and function-bindings subtracted
  * from the set of variables.
  * *)
 let rec freevars expr =
+
+    (* Substract xs from ys *)
+    let list_substract xs ys =
+        match ys with
+        | [] -> []
+        | head::tail when List.mem head xs -> list_substract xs tail
+        | head::tail -> head :: (list_substract xs tail)
+    in
+
     match expr with
     (* Base cases *)
     | Num x -> []
@@ -89,3 +91,35 @@ let rec freevars expr =
 
     | LetRec (var, exp1, exp2) ->
             list_substract [var] ( (freevars exp1) @ (freevars exp2) )
+
+(* Substitute all free occurences of var in exp with sub_expr *)
+let rec subs var expr sub_expr =
+    let sub = fun x -> subs var x sub_expr in
+
+    match expr with
+    | Var x when x = var -> sub_expr
+
+    | MonopAp (op, exp) -> MonopAp (op, sub exp)
+    | BinopAp (op, exp1, exp2) -> BinopAp (op, sub exp1, sub exp2)
+
+    | Cond (i, t, e) -> Cond (sub i, sub t, sub e)
+    | FunAp (exp1, exp2) -> FunAp (sub exp1, sub exp2)
+
+    (* Don't substitute in the body of a function if it binds the variable to be
+     * substituted. *)
+    | Fun (bound_var, exp) when bound_var = var -> Fun (bound_var, exp)
+    | Fun (bound_var, exp) -> Fun (bound_var, sub exp)
+
+    (* Don't evaluate the second expression of a let expression if the variable
+     * gets bound. *)
+    | Let (bound_var, exp1, exp2) when bound_var = var ->
+            Let (bound_var, sub exp1, exp2)
+    | LetRec (bound_var, exp1, exp2) when bound_var = var ->
+            Let (bound_var, sub exp1, exp2)
+
+    | Let (bound_var, exp1, exp2) when bound_var = var ->
+            Let (bound_var, sub exp1, sub exp2)
+    | LetRec (bound_var, exp1, exp2) when bound_var = var ->
+            Let (bound_var, sub exp1, sub exp2)
+
+    | other_thing -> other_thing
