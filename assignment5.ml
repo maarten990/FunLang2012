@@ -131,3 +131,38 @@ let rec subs var expr sub_expr =
             Let (bound_var, sub exp1, sub exp2)
 
     | other_thing -> other_thing
+
+
+(*Assignment 13: Red-Black Tree*)
+type color = 
+    | Red
+    | Black
+
+type 'a rbtree = 
+    | Node of color * 'a * 'a rbtree * 'a rbtree
+    | Leaf
+
+
+(*The balance and instert function as given in the book *)
+let balance = function 
+    | Black, z, Node (Red, y , Node (Red, x, a, b), c), d
+    | Black, z, Node (Red, x , a, Node (Red, y, b, c)), d
+    | Black, x, a, Node (Red, z , Node (Red, y, b, c), d)
+    | Black, x, a, Node (Red, y , b, Node( Red, z, c, d )) ->
+            Node (Red, y, Node (Black, x,a,b), Node (Black, z, c, d))
+    | a,b,c,d ->
+            Node (a,b,c,d)
+
+let insert x s = 
+    let rec ins = function
+        Leaf -> Node(Red, x, Leaf, Leaf)
+    | Node (color, y, a, b) as s ->
+            if x < y then balance (color, y, ins a, b)
+            else if x > y then balance (color, y, a, ins b)
+            else s
+    in
+        match ins s with
+    
+    | Node (_, y, a, b) -> Node (Black, y, a, b)
+    | Leaf -> raise (Invalid_argument "insert")
+
