@@ -143,7 +143,8 @@ type 'a rbtree =
     | Leaf
 
 
-(*The balance and instert function as given in the book *)
+(*The balance and instert function as given in the boo k *)
+(*color * 'a * 'a rbtree * 'a rbtree -> 'a rbtree*)
 let balance = function 
     | Black, z, Node (Red, y , Node (Red, x, a, b), c), d
     | Black, z, Node (Red, x , a, Node (Red, y, b, c)), d
@@ -153,6 +154,7 @@ let balance = function
     | a,b,c,d ->
             Node (a,b,c,d)
 
+(*'a -> 'a rbtree -> 'a rbtree*)
 let insert x s = 
     let rec ins = function
         Leaf -> Node(Red, x, Leaf, Leaf)
