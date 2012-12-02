@@ -64,11 +64,19 @@ let rec expr2string expr =
 let rec freevars expr =
 
     (* Substract xs from ys *)
-    let list_substract xs ys =
+    let rec list_substract xs ys =
         match ys with
         | [] -> []
         | head::tail when List.mem head xs -> list_substract xs tail
         | head::tail -> head :: (list_substract xs tail)
+    in
+
+    (* Infix operator that appends 2 lists while removing duplicates *)
+    let rec (@@) xs ys =
+        match xs with
+        | [] -> ys
+        | h::t when List.mem h ys -> t @@ ys
+        | h::t -> h::(t @@ ys)
     in
 
     match expr with
@@ -78,19 +86,19 @@ let rec freevars expr =
     | Var x -> [x]
 
     | MonopAp (_, exp) -> freevars exp
-    | BinopAp (_, exp1, exp2) -> (freevars exp1) @ (freevars exp2)
+    | BinopAp (_, exp1, exp2) -> (freevars exp1) @@ (freevars exp2)
 
     | Cond (if_exp, then_exp, else_exp) ->
-        (freevars if_exp) @ (freevars then_exp) @ (freevars else_exp)
+        (freevars if_exp) @@ (freevars then_exp) @@ (freevars else_exp)
 
     | Fun (var, exp) -> list_substract [var] (freevars exp)
-    | FunAp (exp1, exp2) -> (freevars exp1) @ (freevars exp2)
+    | FunAp (exp1, exp2) -> (freevars exp1) @@ (freevars exp2)
 
     | Let (var, exp1, exp2) ->
-            list_substract [var] ( (freevars exp1) @ (freevars exp2) )
+            list_substract [var] ( (freevars exp1) @@ (freevars exp2) )
 
     | LetRec (var, exp1, exp2) ->
-            list_substract [var] ( (freevars exp1) @ (freevars exp2) )
+            list_substract [var] ( (freevars exp1) @@ (freevars exp2) )
 
 (* Substitute all free occurences of var in exp with sub_expr *)
 let rec subs var expr sub_expr =
