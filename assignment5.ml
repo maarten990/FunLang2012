@@ -166,3 +166,13 @@ let insert x s =
     | Node (_, y, a, b) -> Node (Black, y, a, b)
     | Leaf -> raise (Invalid_argument "insert")
 
+
+(* Lookup*) 
+(* 'a rbtree -> 'a -> bool*)
+let rec lookup rbtree value = 
+    match rbtree with
+    | Leaf -> false
+    | Node(_, x, _, _) when x = value ->  true
+    | Node(_, x, a, _) when value < x -> lookup a value
+    | Node(_, _, _, b) -> lookup b value
+
