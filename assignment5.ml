@@ -125,9 +125,9 @@ let rec subs var expr sub_expr =
     | LetRec (bound_var, exp1, exp2) when bound_var = var ->
             Let (bound_var, sub exp1, exp2)
 
-    | Let (bound_var, exp1, exp2) when bound_var = var ->
+    | Let (bound_var, exp1, exp2) ->
             Let (bound_var, sub exp1, sub exp2)
-    | LetRec (bound_var, exp1, exp2) when bound_var = var ->
+    | LetRec (bound_var, exp1, exp2) ->
             Let (bound_var, sub exp1, sub exp2)
 
     | other_thing -> other_thing
