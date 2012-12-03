@@ -34,6 +34,7 @@ let binop2string op =
     | And -> " && "
     | Or  -> " || "
 
+(* Converts an expression to an OCaml string representation *)
 let rec expr2string expr =
     match expr with
     | Num x -> string_of_int x
@@ -71,7 +72,8 @@ let rec freevars expr =
         | head::tail -> head :: (list_substract xs tail)
     in
 
-    (* Infix operator that appends 2 lists while removing duplicates *)
+    (* Infix operator that appends 2 lists while removing duplicates, used to
+     * avoid non-sensical return values such as ["a"; "a"; "b"] *)
     let rec (@@) xs ys =
         match xs with
         | [] -> ys
@@ -133,7 +135,11 @@ let rec subs var expr sub_expr =
     | other_thing -> other_thing
 
 
-(*Assignment 13: Red-Black Tree*)
+(*
+ * Assignment 13: Red-Black Tree
+ *
+ * The 'balance' and 'insert' functions are taken from the book "Introduction to
+ * Objective Caml" by Jason Hickey. *)
 type color = 
     | Red
     | Black
@@ -143,8 +149,8 @@ type 'a rbtree =
     | Leaf
 
 
-(*The balance and instert function as given in the boo k *)
-(*color * 'a * 'a rbtree * 'a rbtree -> 'a rbtree*)
+(* The balance and instert functions as given in the book *)
+(* color * 'a * 'a rbtree * 'a rbtree -> 'a rbtree*)
 let balance = function 
     | Black, z, Node (Red, y , Node (Red, x, a, b), c), d
     | Black, z, Node (Red, x , a, Node (Red, y, b, c)), d
@@ -169,7 +175,7 @@ let insert x s =
     | Leaf -> raise (Invalid_argument "insert")
 
 
-(* Lookup*) 
+(* The function 'lookup' checks if a value is contained in the tree. *)
 (* 'a rbtree -> 'a -> bool*)
 let rec lookup rbtree value = 
     match rbtree with
