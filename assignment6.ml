@@ -1,3 +1,9 @@
+(* Functional Languages assignment 6
+ * Inge Becht
+ * Maarten de Jonge
+ * *)
+
+(* The Trie module *)
 module Trie :
     (* the Trie module's public interface *)
     sig
@@ -153,7 +159,8 @@ module Trie :
 
 
 
-(* Lambda calculus stuff starts here *)
+(* Lambda calculus stuff starts here, starting with the necessary definitions
+ * and functions from the previous assignment. *)
 
 
 
