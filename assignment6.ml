@@ -140,6 +140,9 @@ let lookup trie key =
 
 
 
+(* Lambda calculus stuff starts here *)
+
+
 
 
 type monop = Neg | Not
@@ -278,6 +281,8 @@ let rec subs var expr sub_expr =
 
     | other_thing -> other_thing
 
+(* Checks whether a given expression is in normal form, i.e. doesn't contain any
+ * function applications *)
 let rec isNormalForm exp =
     match exp with
     | Var _
@@ -296,11 +301,14 @@ let rec isNormalForm exp =
     | Cond (exp1, exp2, exp3) ->
             isNormalForm exp1 && isNormalForm exp2 && isNormalForm exp3
 
+(* Reduces an expression to normalform using applicative order *)
 let rec evalApplicative exp =
     if isNormalForm exp then
         exp
     else
         match exp with
+        (* When dealing with a function application, get the argument into
+         * normalform first *)
         | FunAp ( Fun (var, exp), arg ) -> 
                 let normalArg = evalApplicative arg in
                 evalApplicative (subs var exp normalArg)
@@ -323,4 +331,33 @@ let rec evalApplicative exp =
         | LetRec (var, exp1, exp2) ->
                 LetRec (var, evalApplicative exp1, evalApplicative exp2)
 
-        | other -> other
+        | atomic -> atomic
+
+(* Reduces an expression to normalform using normal order *)
+let rec evalNormal exp =
+    if isNormalForm exp then
+        exp
+    else
+        match exp with
+        | FunAp ( Fun (var, exp), arg ) -> 
+                evalNormal (subs var exp arg)
+
+        | FunAp (func, arg) -> FunAp (evalNormal func, evalNormal arg)
+
+        | MonopAp (op, exp) -> MonopAp (op, evalNormal exp)
+        | BinopAp (op, exp1, exp2) ->
+                BinopAp (op, evalNormal exp1, evalNormal exp2)
+
+        | Cond (if_exp, then_exp, else_exp) ->
+                Cond (evalNormal if_exp, evalNormal then_exp,
+                evalNormal else_exp)
+
+        | Fun (var, exp) -> Fun (var, evalNormal exp)
+
+        | Let (var, exp1, exp2) ->
+                Let (var, evalNormal exp1, evalNormal exp2)
+
+        | LetRec (var, exp1, exp2) ->
+                LetRec (var, evalNormal exp1, evalNormal exp2)
+
+        | atomic -> atomic
